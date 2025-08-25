@@ -17,6 +17,12 @@ import {
   Divider,
   Tabs,
   Tab,
+  Chip,
+  Tooltip,
+  Card,
+  CardContent,
+  Stack,
+  alpha,
 } from "@mui/material";
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
@@ -200,165 +206,679 @@ export default function HomePage(): JSX.Element {
   }
 
   return (
-    <Box sx={{ p: 2, height: "100vh", display: "flex", flexDirection: "column", overflow: 'hidden' }}>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: 2 }}>
-        <img src="/json.svg" alt="JSON icon" style={{ width: 36, height: 36 }} />
-        <Typography variant="h5" component="h1">
-          JSON FORM SCHEMA GENERATOR
-        </Typography>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: 'hidden', bgcolor: '#fafafa' }}>
+      {/* Modern Header */}
+      <Box sx={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        py: 3,
+        px: 2,
+        borderRadius: '0 0 24px 24px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <Box sx={{ 
+          position: 'absolute',
+          top: -20,
+          right: -20,
+          width: 100,
+          height: 100,
+          borderRadius: '50%',
+          bgcolor: alpha('#ffffff', 0.1)
+        }} />
+        <Box sx={{ 
+          position: 'absolute',
+          bottom: -30,
+          left: -30,
+          width: 80,
+          height: 80,
+          borderRadius: '50%',
+          bgcolor: alpha('#ffffff', 0.05)
+        }} />
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ position: 'relative' }}>
+          <Box sx={{ 
+            width: 48, 
+            height: 48, 
+            borderRadius: '12px',
+            bgcolor: alpha('#ffffff', 0.2),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <img src="/json.svg" alt="JSON icon" style={{ width: 32, height: 32, filter: 'brightness(0) invert(1)' }} />
+          </Box>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ 
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              JSON Schema Generator
+            </Typography>
+            <Typography variant="subtitle1" sx={{ 
+              opacity: 0.9,
+              fontWeight: 400,
+              mt: 0.5
+            }}>
+              Build forms with visual editor • Export JSON Schema & UI Schema
+            </Typography>
+          </Box>
+        </Stack>
       </Box>
-  <Grid container spacing={2} sx={{ flex: 1, minHeight: 0, overflow: 'hidden', height: 'calc(100vh - 96px)' }}>
+  <Grid container spacing={3} sx={{ flex: 1, minHeight: 0, overflow: 'hidden', p: 3, pt: 2 }}>
         <Grid size={{ xs: 12, md: 3 }} sx={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
-          <Paper sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", overflow: 'hidden', boxSizing: 'border-box' }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="h6">Add field</Typography>
-              <Typography variant="caption">{fields.length}</Typography>
+          <Card sx={{ 
+            height: "100%", 
+            display: "flex", 
+            flexDirection: "column", 
+            overflow: 'hidden',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            borderRadius: 3
+          }}>
+            <CardContent sx={{ p: 3, pb: 2 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  Add Fields
+                </Typography>
+                <Chip 
+                  label={fields.length} 
+                  size="small" 
+                  color="primary" 
+                  variant="outlined"
+                  sx={{ minWidth: 40, height: 24 }}
+                />
+              </Stack>
+
+              <Stack spacing={1.5}>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => addField("string")}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    borderRadius: 2,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: alpha('#1976d2', 0.04),
+                      borderColor: 'primary.main'
+                    }
+                  }}
+                >
+                  📝 Text Input
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => addField("number")}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    borderRadius: 2,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: alpha('#1976d2', 0.04),
+                      borderColor: 'primary.main'
+                    }
+                  }}
+                >
+                  🔢 Number Input
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => addField("boolean")}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    borderRadius: 2,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: alpha('#1976d2', 0.04),
+                      borderColor: 'primary.main'
+                    }
+                  }}
+                >
+                  ☑️ Checkbox
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => addField("select")}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    borderRadius: 2,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: alpha('#1976d2', 0.04),
+                      borderColor: 'primary.main'
+                    }
+                  }}
+                >
+                  📋 Select Dropdown
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => addField("textarea")}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    borderRadius: 2,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      bgcolor: alpha('#1976d2', 0.04),
+                      borderColor: 'primary.main'
+                    }
+                  }}
+                >
+                  📄 Text Area
+                </Button>
+              </Stack>
+            </CardContent>
+
+            <Divider />
+
+            <Box sx={{ p: 2, pt: 1 }}>
+              <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1, fontWeight: 600 }}>
+                Form Fields
+              </Typography>
             </Box>
 
-            <Box sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 1 }}>
-              <Button variant="outlined" onClick={() => addField("string")}>
-                Text
-              </Button>
-              <Button variant="outlined" onClick={() => addField("number")}>
-                Number
-              </Button>
-              <Button variant="outlined" onClick={() => addField("boolean")}>
-                Checkbox
-              </Button>
-              <Button variant="outlined" onClick={() => addField("select")}>
-                Select
-              </Button>
-              <Button variant="outlined" onClick={() => addField("textarea")}>
-                Textarea
-              </Button>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            <List sx={{ overflow: "auto", flex: 1, minHeight: 0 }}>
+            <List sx={{ overflow: "auto", flex: 1, minHeight: 0, px: 1 }}>
               {fields.map((f, i) => (
                 <ListItem
                   key={f.id}
+                  sx={{
+                    borderRadius: 2,
+                    mb: 0.5,
+                    bgcolor: selected === i ? alpha('#1976d2', 0.08) : 'transparent',
+                    border: selected === i ? '1px solid' : '1px solid transparent',
+                    borderColor: selected === i ? alpha('#1976d2', 0.3) : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: alpha('#1976d2', 0.04),
+                      borderColor: alpha('#1976d2', 0.2)
+                    }
+                  }}
                   secondaryAction={
-                    <>
-                      <IconButton
-                        edge="end"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveFieldUpAt(i);
-                        }}
-                        aria-label="move-up"
-                        disabled={i === 0}
-                        title={i === 0 ? "Can't move up" : 'Move up'}
-                      >
-                        ▲
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          moveFieldDownAt(i);
-                        }}
-                        aria-label="move-down"
-                        disabled={i === fields.length - 1}
-                        title={i === fields.length - 1 ? "Can't move down" : 'Move down'}
-                      >
-                        ▼
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeFieldAt(i);
-                        }}
-                        aria-label="remove"
-                      >
-                        ✕
-                      </IconButton>
-                    </>
+                    <Stack direction="row" spacing={0.5}>
+                      <Tooltip title={i === 0 ? "Can't move up" : "Move up"}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveFieldUpAt(i);
+                          }}
+                          disabled={i === 0}
+                          sx={{ 
+                            width: 28, 
+                            height: 28,
+                            '&:disabled': { opacity: 0.3 }
+                          }}
+                        >
+                          ⬆️
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title={i === fields.length - 1 ? "Can't move down" : "Move down"}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            moveFieldDownAt(i);
+                          }}
+                          disabled={i === fields.length - 1}
+                          sx={{ 
+                            width: 28, 
+                            height: 28,
+                            '&:disabled': { opacity: 0.3 }
+                          }}
+                        >
+                          ⬇️
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Remove field">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFieldAt(i);
+                          }}
+                          sx={{ 
+                            width: 28, 
+                            height: 28,
+                            color: 'error.main',
+                            '&:hover': { bgcolor: alpha('#d32f2f', 0.1) }
+                          }}
+                        >
+                          🗑️
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   }
                   onClick={() => setSelected(i)}
                 >
-                  <ListItemText primary={f.title} secondary={f.type} />
+                  <ListItemText 
+                    primary={
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        {f.title}
+                      </Typography>
+                    } 
+                    secondary={
+                      <Chip 
+                        label={f.type} 
+                        size="small" 
+                        variant="outlined"
+                        sx={{ 
+                          height: 20, 
+                          fontSize: '0.7rem',
+                          mt: 0.5,
+                          textTransform: 'capitalize'
+                        }}
+                      />
+                    } 
+                  />
                 </ListItem>
               ))}
             </List>
-          </Paper>
+          </Card>
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
-          <Paper sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", overflow: 'hidden' }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="h6">Form preview</Typography>
-              <Typography variant="caption">RJSF + MUI</Typography>
-            </Box>
+          <Card sx={{ 
+            height: "100%", 
+            display: "flex", 
+            flexDirection: "column", 
+            overflow: 'hidden',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            borderRadius: 3
+          }}>
+            <CardContent sx={{ p: 3, pb: 2 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                    Live Preview
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                    React JSON Schema Form • Material-UI
+                  </Typography>
+                </Box>
+                {fields.length > 0 && (
+                  <Chip 
+                    label={`${fields.length} field${fields.length !== 1 ? 's' : ''}`}
+                    color="success"
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              </Stack>
+            </CardContent>
 
             {fields.length === 0 ? (
-              <Box sx={{ mt: 2, flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Typography color="text.secondary">Add a field, then select it to start editing the form.</Typography>
+              <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: 4 }}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Box sx={{ 
+                    width: 80, 
+                    height: 80, 
+                    borderRadius: '50%',
+                    bgcolor: alpha('#1976d2', 0.1),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mx: 'auto',
+                    mb: 2
+                  }}>
+                    <Typography variant="h3">📝</Typography>
+                  </Box>
+                  <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 500, mb: 1 }}>
+                    Ready to build your form
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    Add fields from the left panel to start creating your form
+                  </Typography>
+                </Box>
               </Box>
             ) : (
               <>
-                <Box sx={{ mt: 2, flex: 1, overflow: "auto", minHeight: 0 }}>
-                  <Form
-                    key={fields.map((f) => f.id).join(",")}
-                    schema={toJSONSchema().schema}
-                    uiSchema={toJSONSchema().uiSchema}
-                    validator={validator}
-                    onSubmit={({ formData }) => {
-                      alert(JSON.stringify(formData, null, 2));
-                    }}
-                  >
-                    <div /> {/* Empty div to prevent RJSF from rendering its own submit button */}
-                  </Form>
+                <Box sx={{ flex: 1, overflow: "auto", px: 3, pb: 2 }}>
+                  <Paper sx={{ 
+                    p: 3, 
+                    bgcolor: '#fafafa',
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                    borderRadius: 2
+                  }}>
+                    <Form
+                      key={fields.map((f) => f.id).join(",")}
+                      schema={toJSONSchema().schema}
+                      uiSchema={toJSONSchema().uiSchema}
+                      validator={validator}
+                      onSubmit={({ formData }) => {
+                        alert(JSON.stringify(formData, null, 2));
+                      }}
+                    >
+                      <div />
+                    </Form>
+                  </Paper>
                 </Box>
-                <Box sx={{ mt: 2, flexShrink: 0, display: "flex", gap: 1 }}>
-                  <Button 
-                    variant="contained"
-                    onClick={() => {
-                      // Trigger form submission programmatically
-                      const form = document.querySelector('form');
-                      if (form) {
-                        const formData = new FormData(form);
-                        const data: any = {};
-                        formData.forEach((value, key) => {
-                          data[key] = value;
-                        });
-                        alert(JSON.stringify(data, null, 2));
-                      }
-                    }}
-                  >
-                    Submit
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      setFields([]);
-                      setSelected(null);
-                    }}
-                  >
-                    Clear
-                  </Button>
+                <Box sx={{ px: 3, pb: 3 }}>
+                  <Stack direction="row" spacing={2} justifyContent="center">
+                    <Button 
+                      variant="contained"
+                      onClick={() => {
+                        const form = document.querySelector('form');
+                        if (form) {
+                          const formData = new FormData(form);
+                          const data: any = {};
+                          formData.forEach((value, key) => {
+                            data[key] = value;
+                          });
+                          alert(JSON.stringify(data, null, 2));
+                        }
+                      }}
+                      sx={{ 
+                        borderRadius: 2,
+                        py: 1.5,
+                        px: 3,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
+                      }}
+                    >
+                      🚀 Test Form
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setFields([]);
+                        setSelected(null);
+                      }}
+                      sx={{ 
+                        borderRadius: 2,
+                        py: 1.5,
+                        px: 3,
+                        textTransform: 'none',
+                        fontWeight: 600
+                      }}
+                    >
+                      🗑️ Clear All
+                    </Button>
+                  </Stack>
                 </Box>
               </>
             )}
-          </Paper>
+          </Card>
         </Grid>
 
         <Grid size={{ xs: 12, md: 3 }} sx={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
-          <Paper sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", overflow: 'hidden' }}>
-            {/* split the Paper into two equal halves; each half scrolls if content overflows */}
+          <Card sx={{ 
+            height: "100%", 
+            display: "flex", 
+            flexDirection: "column", 
+            overflow: 'hidden',
+            border: '1px solid',
+            borderColor: 'divider',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            borderRadius: 3
+          }}>
+            {/* Field Settings Section */}
             <Box sx={{ height: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: '0 0 50%' }}>
-              <Typography variant="h6" sx={{ flexShrink: 0 }}>Field settings</Typography>
+              <CardContent sx={{ p: 3, pb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  ⚙️ Field Settings
+                </Typography>
+              </CardContent>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, overflow: 'auto', pr: 1, pt: 2, pb: 1, flex: 1, minHeight: 0 }}>
-                <Box sx={{ mt: 1 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: 2, 
+                overflow: 'auto', 
+                px: 3, 
+                pb: 2, 
+                flex: 1, 
+                minHeight: 0 
+              }}>
                 {selected === null ? (
-                  <Typography sx={{ mt: 2 }} color="text.secondary">
-                    Select a field to edit
-                  </Typography>
+                  <Box sx={{ 
+                    textAlign: 'center', 
+                    py: 4,
+                    color: 'text.secondary'
+                  }}>
+                    <Typography variant="h4" sx={{ mb: 1, opacity: 0.5 }}>⚡</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      Select a field to edit
+                    </Typography>
+                    <Typography variant="caption" sx={{ display: 'block', mt: 0.5 }}>
+                      Click on any field from the list
+                    </Typography>
+                  </Box>
                 ) : (
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Stack spacing={2.5}>
+                    <TextField
+                      label="Field Title"
+                      value={fields[selected]?.title || ""}
+                      onChange={(e) => updateFieldAt(selected, { title: e.target.value })}
+                      size="small"
+                      variant="outlined"
+                      fullWidth
+                    />
+                    <TextField
+                      label="Field Name"
+                      value={fields[selected]?.name || ""}
+                      onChange={(e) => updateFieldAt(selected, { name: e.target.value })}
+                      size="small"
+                      variant="outlined"
+                      fullWidth
+                    />
+                    
+                    <TextField
+                      label="Description"
+                      value={fields[selected]?.description || ""}
+                      onChange={(e) => updateFieldAt(selected, { description: e.target.value })}
+                      size="small"
+                      multiline
+                      rows={2}
+                      placeholder="Field description (optional)"
+                      fullWidth
+                    />
+                    
+                    <TextField
+                      label="Help Text"
+                      value={fields[selected]?.help || ""}
+                      onChange={(e) => updateFieldAt(selected, { help: e.target.value })}
+                      size="small"
+                      placeholder="Help text shown below field"
+                      fullWidth
+                    />
+
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Select
+                        value={fields[selected]?.type || "string"}
+                        onChange={(e) => {
+                          const newType = e.target.value as FieldType;
+                          const cur = fields[selected]!;
+                          const patch: Partial<Field> = { type: newType };
+                          if (newType === "select" && !cur.options) patch.options = ["Option 1"];
+                          if (newType !== "select") patch.options = undefined;
+                          patch.widget = undefined;
+                          updateFieldAt(selected, patch);
+                        }}
+                        size="small"
+                        sx={{ minWidth: 120 }}
+                      >
+                        <MenuItem value="string">📝 Text</MenuItem>
+                        <MenuItem value="number">🔢 Number</MenuItem>
+                        <MenuItem value="boolean">☑️ Boolean</MenuItem>
+                        <MenuItem value="select">📋 Select</MenuItem>
+                        <MenuItem value="textarea">📄 Textarea</MenuItem>
+                      </Select>
+
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={!!fields[selected]?.required}
+                            onChange={(e) => updateFieldAt(selected, { required: e.target.checked })}
+                          />
+                        }
+                        label="Required"
+                      />
+                    </Stack>
+                    
+                    {/* Widget selector */}
+                    {(fields[selected]?.type === "boolean" || fields[selected]?.type === "select") && (
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Typography variant="body2" sx={{ minWidth: "60px", fontWeight: 500 }}>
+                          Widget:
+                        </Typography>
+                        <Select
+                          value={fields[selected]?.widget || "default"}
+                          onChange={(e) => updateFieldAt(selected, { widget: e.target.value === "default" ? undefined : e.target.value })}
+                          size="small"
+                          fullWidth
+                        >
+                          <MenuItem value="default">Default</MenuItem>
+                          {fields[selected]?.type === "boolean" && <MenuItem value="radio">Radio</MenuItem>}
+                          {fields[selected]?.type === "select" && <MenuItem value="radio">Radio</MenuItem>}
+                        </Select>
+                      </Stack>
+                    )}
+                    
+                    {/* Additional UI options */}
+                    <Stack spacing={1}>
+                      {(fields[selected]?.widget === "radio" || (fields[selected]?.type === "boolean" && fields[selected]?.widget !== "radio")) && (
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={!!fields[selected]?.inline}
+                              onChange={(e) => updateFieldAt(selected, { inline: e.target.checked })}
+                            />
+                          }
+                          label="Display inline"
+                        />
+                      )}
+                      
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={!!fields[selected]?.disabled}
+                            onChange={(e) => updateFieldAt(selected, { disabled: e.target.checked })}
+                          />
+                        }
+                        label="Disabled"
+                      />
+                    </Stack>
+
+                    {/* Type-specific fields */}
+                    {fields[selected]?.type === "select" && (
+                      <TextField
+                        label="Options (comma separated)"
+                        value={(fields[selected].options || []).join(",")}
+                        onChange={(e) =>
+                          updateFieldAt(selected, {
+                            options: e.target.value
+                              .split(",")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          })
+                        }
+                        size="small"
+                        multiline
+                        rows={3}
+                        maxRows={6}
+                        fullWidth
+                      />
+                    )}
+
+                    {fields[selected]?.type === "string" && (
+                      <TextField
+                        label="Placeholder / Default"
+                        value={(fields[selected].defaultValue as string) || fields[selected].placeholder || ""}
+                        onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.value, placeholder: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                    )}
+
+                    {fields[selected]?.type === "textarea" && (
+                      <Stack spacing={2}>
+                        <TextField
+                          label="Placeholder / Default"
+                          value={(fields[selected].defaultValue as string) || fields[selected].placeholder || ""}
+                          onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.value, placeholder: e.target.value })}
+                          size="small"
+                          multiline
+                          rows={3}
+                          maxRows={6}
+                          fullWidth
+                        />
+                        <TextField
+                          label="Rows"
+                          type="number"
+                          value={fields[selected].rows ?? 3}
+                          onChange={(e) => updateFieldAt(selected, { rows: Number(e.target.value) || 3 })}
+                          size="small"
+                          inputProps={{ min: 1, max: 20 }}
+                          sx={{ maxWidth: 100 }}
+                        />
+                      </Stack>
+                    )}
+
+                    {fields[selected]?.type === "number" && (
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          label="Min"
+                          type="number"
+                          value={fields[selected].minimum ?? ''}
+                          onChange={(e) => updateFieldAt(selected, { minimum: e.target.value === '' ? undefined : Number(e.target.value) })}
+                          size="small"
+                        />
+                        <TextField
+                          label="Max"
+                          type="number"
+                          value={fields[selected].maximum ?? ''}
+                          onChange={(e) => updateFieldAt(selected, { maximum: e.target.value === '' ? undefined : Number(e.target.value) })}
+                          size="small"
+                        />
+                        <TextField
+                          label="Default"
+                          type="number"
+                          value={fields[selected].defaultValue ?? ''}
+                          onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.value === '' ? undefined : Number(e.target.value) })}
+                          size="small"
+                        />
+                      </Stack>
+                    )}
+
+                    {fields[selected]?.type === "boolean" && (
+                      <FormControlLabel
+                        control={
+                          <Checkbox 
+                            checked={!!fields[selected].defaultValue} 
+                            onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.checked })} 
+                          />
+                        }
+                        label="Default checked"
+                      />
+                    )}
+
+                    {fields[selected]?.type === "select" && (
+                      <TextField
+                        label="Default option"
+                        value={(fields[selected].defaultValue as string) || ""}
+                        onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.value })}
+                        size="small"
+                        fullWidth
+                      />
+                    )}
                     <TextField
                       label="Title"
                       value={fields[selected]?.title || ""}
@@ -559,71 +1079,121 @@ export default function HomePage(): JSX.Element {
                         fullWidth
                       />
                     )}
-                    </Box>
+                    </Stack>
                   )}
                 </Box>
               </Box>
-            </Box>
 
-            <Box sx={{ height: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: '0 0 50%' }}>
-              <Tabs 
-                value={activeTab} 
-                onChange={(_, newValue) => setActiveTab(newValue)}
-                sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
-              >
-                <Tab label="JSON Schema" />
-                <Tab label="UI Schema" />
-              </Tabs>
-              
-              {activeTab === 0 && (
-                <Paper sx={{ mt: 1, p: 1, bgcolor: "grey.900", color: "grey.50", overflow: "auto", flex: 1, minHeight: 0 }}>
-                  <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify(toJSONSchema().schema, null, 2)}</pre>
-                </Paper>
-              )}
-              
-              {activeTab === 1 && (
-                <Paper sx={{ mt: 1, p: 1, bgcolor: "grey.900", color: "grey.50", overflow: "auto", flex: 1, minHeight: 0 }}>
-                  <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify(toJSONSchema().uiSchema, null, 2)}</pre>
-                </Paper>
-              )}
+              <Divider />
 
-              <Box sx={{ display: "flex", gap: 1, mt: 1, flexShrink: 0 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    const content = activeTab === 0 
-                      ? JSON.stringify(toJSONSchema().schema, null, 2)
-                      : JSON.stringify(toJSONSchema().uiSchema, null, 2);
-                    navigator.clipboard?.writeText(content);
-                  }}
-                >
-                  Copy
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    const content = activeTab === 0 
-                      ? JSON.stringify(toJSONSchema().schema, null, 2)
-                      : JSON.stringify(toJSONSchema().uiSchema, null, 2);
-                    const filename = activeTab === 0 ? "schema.json" : "uiSchema.json";
-                    const blob = new Blob([content], {
-                      type: "application/json",
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = filename;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                >
-                  Save
-                </Button>
+              {/* Schema Output Section */}
+              <Box sx={{ height: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: '0 0 50%' }}>
+                <Box sx={{ p: 2 }}>
+                  <Tabs 
+                    value={activeTab} 
+                    onChange={(_, newValue) => setActiveTab(newValue)}
+                    sx={{ 
+                      minHeight: 40,
+                      '& .MuiTab-root': {
+                        minHeight: 40,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        fontSize: '0.875rem'
+                      }
+                    }}
+                  >
+                    <Tab label="📋 JSON Schema" />
+                    <Tab label="🎨 UI Schema" />
+                  </Tabs>
+                </Box>
+                
+                {activeTab === 0 && (
+                  <Paper sx={{ 
+                    m: 2, 
+                    p: 2, 
+                    bgcolor: "grey.900", 
+                    color: "grey.50", 
+                    overflow: "auto", 
+                    flex: 1, 
+                    borderRadius: 2,
+                    fontFamily: 'monospace'
+                  }}>
+                    <pre style={{ margin: 0, fontSize: 11, lineHeight: 1.4 }}>
+                      {JSON.stringify(toJSONSchema().schema, null, 2)}
+                    </pre>
+                  </Paper>
+                )}
+                
+                {activeTab === 1 && (
+                  <Paper sx={{ 
+                    m: 2, 
+                    p: 2, 
+                    bgcolor: "grey.900", 
+                    color: "grey.50", 
+                    overflow: "auto", 
+                    flex: 1, 
+                    borderRadius: 2,
+                    fontFamily: 'monospace'
+                  }}>
+                    <pre style={{ margin: 0, fontSize: 11, lineHeight: 1.4 }}>
+                      {JSON.stringify(toJSONSchema().uiSchema, null, 2)}
+                    </pre>
+                  </Paper>
+                )}
+
+                <Box sx={{ p: 2, pt: 1 }}>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => {
+                        const content = activeTab === 0 
+                          ? JSON.stringify(toJSONSchema().schema, null, 2)
+                          : JSON.stringify(toJSONSchema().uiSchema, null, 2);
+                        navigator.clipboard?.writeText(content);
+                      }}
+                      sx={{ 
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        fontSize: '0.75rem'
+                      }}
+                    >
+                      📋 Copy
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => {
+                        const content = activeTab === 0 
+                          ? JSON.stringify(toJSONSchema().schema, null, 2)
+                          : JSON.stringify(toJSONSchema().uiSchema, null, 2);
+                        const filename = activeTab === 0 ? "schema.json" : "uiSchema.json";
+                        const blob = new Blob([content], {
+                          type: "application/json",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = filename;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      sx={{ 
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        fontSize: '0.75rem'
+                      }}
+                    >
+                      💾 Save
+                    </Button>
+                  </Stack>
+                </Box>
               </Box>
-            </Box>
-          </Paper>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
-  );
-}
+      </Box>
+    );
+  }
