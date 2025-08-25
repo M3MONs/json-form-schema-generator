@@ -15,6 +15,8 @@ import {
   FormControlLabel,
   Checkbox,
   Divider,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
@@ -32,6 +34,13 @@ interface Field {
   defaultValue?: string | number | boolean;
   minimum?: number;
   maximum?: number;
+  // UI Schema properties
+  widget?: string;
+  description?: string;
+  help?: string;
+  rows?: number;
+  inline?: boolean;
+  disabled?: boolean;
 }
 
 function uid() {
@@ -62,6 +71,7 @@ function defaultField(type: FieldType): Field {
 export default function HomePage(): JSX.Element {
   const [fields, setFields] = useState<Field[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   function addField(type: FieldType) {
     setFields((prev) => {
@@ -116,37 +126,77 @@ export default function HomePage(): JSX.Element {
 
   function toJSONSchema() {
     const schema: any = { type: "object", properties: {}, required: [] as string[] };
+    const uiSchema: any = {};
+    
     fields.forEach((f) => {
       let prop: any = {};
+      let uiConfig: any = {};
+      
       switch (f.type) {
         case "string":
+          prop = { type: "string", title: f.title };
+          if (f.placeholder) prop.default = f.placeholder;
+          if (f.defaultValue && typeof f.defaultValue === "string") prop.default = f.defaultValue;
+          if (f.description) prop.description = f.description;
+          break;
         case "textarea":
           prop = { type: "string", title: f.title };
           if (f.placeholder) prop.default = f.placeholder;
           if (f.defaultValue && typeof f.defaultValue === "string") prop.default = f.defaultValue;
+          if (f.description) prop.description = f.description;
+          uiConfig["ui:widget"] = f.widget || "textarea";
+          if (f.rows) uiConfig["ui:options"] = { rows: f.rows };
           break;
         case "number":
           prop = { type: "number", title: f.title };
           if (typeof f.minimum === "number") prop.minimum = f.minimum;
           if (typeof f.maximum === "number") prop.maximum = f.maximum;
           if (typeof f.defaultValue === "number") prop.default = f.defaultValue;
+          if (f.description) prop.description = f.description;
           break;
         case "boolean":
           prop = { type: "boolean", title: f.title };
           if (typeof f.defaultValue === "boolean") prop.default = f.defaultValue;
+          if (f.description) prop.description = f.description;
+          if (f.widget === "radio") {
+            uiConfig["ui:widget"] = "radio";
+          } else if (f.inline) {
+            uiConfig["ui:options"] = { inline: true };
+          }
           break;
         case "select":
           prop = { type: "string", title: f.title, enum: f.options || [] };
           if (f.defaultValue && typeof f.defaultValue === "string") prop.default = f.defaultValue;
+          if (f.description) prop.description = f.description;
+          if (f.widget === "radio") {
+            uiConfig["ui:widget"] = "radio";
+            if (f.inline) uiConfig["ui:options"] = { inline: true };
+          }
           break;
         default:
           prop = { type: "string", title: f.title };
       }
+      
+      // Common UI properties
+      if (f.placeholder && !prop.default) {
+        uiConfig["ui:placeholder"] = f.placeholder;
+      }
+      if (f.help) {
+        uiConfig["ui:help"] = f.help;
+      }
+      if (f.disabled) {
+        uiConfig["ui:disabled"] = true;
+      }
+      
       schema.properties[f.name] = prop;
+      if (Object.keys(uiConfig).length > 0) {
+        uiSchema[f.name] = uiConfig;
+      }
       if (f.required) schema.required.push(f.name);
     });
+    
     if (schema.required.length === 0) delete schema.required;
-    return schema;
+    return { schema, uiSchema };
   }
 
   return (
@@ -252,7 +302,8 @@ export default function HomePage(): JSX.Element {
                 <Box sx={{ mt: 2, flex: 1, overflow: "auto", minHeight: 0 }}>
                   <Form
                     key={fields.map((f) => f.id).join(",")}
-                    schema={toJSONSchema()}
+                    schema={toJSONSchema().schema}
+                    uiSchema={toJSONSchema().uiSchema}
                     validator={validator}
                     onSubmit={({ formData }) => {
                       alert(JSON.stringify(formData, null, 2));
@@ -320,6 +371,24 @@ export default function HomePage(): JSX.Element {
                       onChange={(e) => updateFieldAt(selected, { name: e.target.value })}
                       size="small"
                     />
+                    
+                    <TextField
+                      label="Description"
+                      value={fields[selected]?.description || ""}
+                      onChange={(e) => updateFieldAt(selected, { description: e.target.value })}
+                      size="small"
+                      multiline
+                      rows={2}
+                      placeholder="Field description (optional)"
+                    />
+                    
+                    <TextField
+                      label="Help text"
+                      value={fields[selected]?.help || ""}
+                      onChange={(e) => updateFieldAt(selected, { help: e.target.value })}
+                      size="small"
+                      placeholder="Help text shown below field (optional)"
+                    />
 
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Select
@@ -330,6 +399,8 @@ export default function HomePage(): JSX.Element {
                           const patch: Partial<Field> = { type: newType };
                           if (newType === "select" && !cur.options) patch.options = ["Option 1"];
                           if (newType !== "select") patch.options = undefined;
+                          // Reset widget when type changes
+                          patch.widget = undefined;
                           updateFieldAt(selected, patch);
                         }}
                         size="small"
@@ -350,6 +421,48 @@ export default function HomePage(): JSX.Element {
                           />
                         }
                         label="Required"
+                      />
+                    </Box>
+                    
+                    {/* Widget selector */}
+                    {(fields[selected]?.type === "boolean" || fields[selected]?.type === "select") && (
+                      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <Typography variant="body2" sx={{ minWidth: "60px" }}>Widget:</Typography>
+                        <Select
+                          value={fields[selected]?.widget || "default"}
+                          onChange={(e) => updateFieldAt(selected, { widget: e.target.value === "default" ? undefined : e.target.value })}
+                          size="small"
+                          fullWidth
+                        >
+                          <MenuItem value="default">Default</MenuItem>
+                          {fields[selected]?.type === "boolean" && <MenuItem value="radio">Radio</MenuItem>}
+                          {fields[selected]?.type === "select" && <MenuItem value="radio">Radio</MenuItem>}
+                        </Select>
+                      </Box>
+                    )}
+                    
+                    {/* Additional UI options */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      {(fields[selected]?.widget === "radio" || (fields[selected]?.type === "boolean" && fields[selected]?.widget !== "radio")) && (
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={!!fields[selected]?.inline}
+                              onChange={(e) => updateFieldAt(selected, { inline: e.target.checked })}
+                            />
+                          }
+                          label="Display inline"
+                        />
+                      )}
+                      
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={!!fields[selected]?.disabled}
+                            onChange={(e) => updateFieldAt(selected, { disabled: e.target.checked })}
+                          />
+                        }
+                        label="Disabled"
                       />
                     </Box>
 
@@ -382,16 +495,26 @@ export default function HomePage(): JSX.Element {
                     )}
 
                     {fields[selected]?.type === "textarea" && (
-                      <TextField
-                        label="Placeholder / Default"
-                        value={(fields[selected].defaultValue as string) || fields[selected].placeholder || ""}
-                        onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.value, placeholder: e.target.value })}
-                        size="small"
-                        multiline
-                        rows={3}
-                        maxRows={6}
-                        fullWidth
-                      />
+                      <>
+                        <TextField
+                          label="Placeholder / Default"
+                          value={(fields[selected].defaultValue as string) || fields[selected].placeholder || ""}
+                          onChange={(e) => updateFieldAt(selected, { defaultValue: e.target.value, placeholder: e.target.value })}
+                          size="small"
+                          multiline
+                          rows={3}
+                          maxRows={6}
+                          fullWidth
+                        />
+                        <TextField
+                          label="Rows"
+                          type="number"
+                          value={fields[selected].rows ?? 3}
+                          onChange={(e) => updateFieldAt(selected, { rows: Number(e.target.value) || 3 })}
+                          size="small"
+                          inputProps={{ min: 1, max: 20 }}
+                        />
+                      </>
                     )}
 
                     {fields[selected]?.type === "number" && (
@@ -443,16 +566,35 @@ export default function HomePage(): JSX.Element {
             </Box>
 
             <Box sx={{ height: '50%', display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: '0 0 50%' }}>
-              <Typography variant="subtitle1" sx={{ flexShrink: 0 }}>JSON Schema</Typography>
-              <Paper sx={{ mt: 1, p: 1, bgcolor: "grey.900", color: "grey.50", overflow: "auto", flex: 1, minHeight: 0 }}>
-                <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify(toJSONSchema(), null, 2)}</pre>
-              </Paper>
+              <Tabs 
+                value={activeTab} 
+                onChange={(_, newValue) => setActiveTab(newValue)}
+                sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
+              >
+                <Tab label="JSON Schema" />
+                <Tab label="UI Schema" />
+              </Tabs>
+              
+              {activeTab === 0 && (
+                <Paper sx={{ mt: 1, p: 1, bgcolor: "grey.900", color: "grey.50", overflow: "auto", flex: 1, minHeight: 0 }}>
+                  <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify(toJSONSchema().schema, null, 2)}</pre>
+                </Paper>
+              )}
+              
+              {activeTab === 1 && (
+                <Paper sx={{ mt: 1, p: 1, bgcolor: "grey.900", color: "grey.50", overflow: "auto", flex: 1, minHeight: 0 }}>
+                  <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify(toJSONSchema().uiSchema, null, 2)}</pre>
+                </Paper>
+              )}
 
-              <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+              <Box sx={{ display: "flex", gap: 1, mt: 1, flexShrink: 0 }}>
                 <Button
                   variant="contained"
                   onClick={() => {
-                    navigator.clipboard?.writeText(JSON.stringify(toJSONSchema(), null, 2));
+                    const content = activeTab === 0 
+                      ? JSON.stringify(toJSONSchema().schema, null, 2)
+                      : JSON.stringify(toJSONSchema().uiSchema, null, 2);
+                    navigator.clipboard?.writeText(content);
                   }}
                 >
                   Copy
@@ -460,13 +602,17 @@ export default function HomePage(): JSX.Element {
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    const blob = new Blob([JSON.stringify(toJSONSchema(), null, 2)], {
+                    const content = activeTab === 0 
+                      ? JSON.stringify(toJSONSchema().schema, null, 2)
+                      : JSON.stringify(toJSONSchema().uiSchema, null, 2);
+                    const filename = activeTab === 0 ? "schema.json" : "uiSchema.json";
+                    const blob = new Blob([content], {
                       type: "application/json",
                     });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = "schema.json";
+                    a.download = filename;
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
