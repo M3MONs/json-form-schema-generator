@@ -1,5 +1,5 @@
 import { useState, type JSX } from "react";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Tabs, Tab, useMediaQuery, useTheme } from "@mui/material";
 import Header from "../organisms/Header";
 import FieldsList from "../organisms/FieldsList";
 import FormPreview from "../organisms/FormPreview";
@@ -8,9 +8,13 @@ import type { Field, FieldType } from "../../types/field";
 import { defaultField } from "../../utils/utils";
 
 export default function HomePage(): JSX.Element {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  
   const [fields, setFields] = useState<Field[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [mobileTab, setMobileTab] = useState<number>(0);
 
   function addField(type: FieldType) {
     setFields((prev) => {
@@ -168,6 +172,49 @@ export default function HomePage(): JSX.Element {
 
   const { schema, uiSchema } = toJSONSchema();
 
+  // Mobile tab content renderer
+  const renderMobileTabContent = () => {
+    switch (mobileTab) {
+      case 0:
+        return (
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <FieldsList
+              fields={fields}
+              selectedIndex={selected}
+              onAddField={addField}
+              onSelectField={setSelected}
+              onMoveFieldUp={moveFieldUpAt}
+              onMoveFieldDown={moveFieldDownAt}
+              onRemoveField={removeFieldAt}
+            />
+          </Box>
+        );
+      case 1:
+        return (
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <FormPreview fieldsCount={fields.length} schema={schema} uiSchema={uiSchema} onClearAll={handleClearAll} />
+          </Box>
+        );
+      case 2:
+        return (
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+            <FieldEditor
+              selectedField={selected !== null ? fields[selected] : null}
+              activeTab={activeTab}
+              jsonSchema={schema}
+              uiSchema={uiSchema}
+              onUpdateField={(patch) => selected !== null && updateFieldAt(selected, patch)}
+              onTabChange={setActiveTab}
+              onCopySchema={handleCopySchema}
+              onSaveSchema={handleSaveSchema}
+            />
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden", bgcolor: "#fafafa" }}>
       <Header
@@ -176,36 +223,58 @@ export default function HomePage(): JSX.Element {
         iconPath="/json.svg"
       />
 
-      <Grid container spacing={3} sx={{ flex: 1, minHeight: 0, overflow: "hidden", p: 3, pt: 2 }}>
-        <Grid size={{ xs: 12, md: 3 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
-          <FieldsList
-            fields={fields}
-            selectedIndex={selected}
-            onAddField={addField}
-            onSelectField={setSelected}
-            onMoveFieldUp={moveFieldUpAt}
-            onMoveFieldDown={moveFieldDownAt}
-            onRemoveField={removeFieldAt}
-          />
-        </Grid>
+      {/* Mobile Layout */}
+      {isMobile ? (
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+            <Tabs 
+              value={mobileTab} 
+              onChange={(_, value) => setMobileTab(value)}
+              variant="fullWidth"
+              sx={{ minHeight: 48 }}
+            >
+              <Tab label="Fields" />
+              <Tab label="Preview" />
+              <Tab label="Schema" />
+            </Tabs>
+          </Box>
+          <Box sx={{ flex: 1, p: 2, minHeight: 0, display: "flex", flexDirection: "column" }}>
+            {renderMobileTabContent()}
+          </Box>
+        </Box>
+      ) : (
+        /* Desktop Layout */
+        <Grid container spacing={3} sx={{ flex: 1, minHeight: 0, overflow: "hidden", p: 3, pt: 2 }}>
+          <Grid size={{ xs: 12, md: 3 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
+            <FieldsList
+              fields={fields}
+              selectedIndex={selected}
+              onAddField={addField}
+              onSelectField={setSelected}
+              onMoveFieldUp={moveFieldUpAt}
+              onMoveFieldDown={moveFieldDownAt}
+              onRemoveField={removeFieldAt}
+            />
+          </Grid>
 
-        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
-          <FormPreview fieldsCount={fields.length} schema={schema} uiSchema={uiSchema} onClearAll={handleClearAll} />
-        </Grid>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
+            <FormPreview fieldsCount={fields.length} schema={schema} uiSchema={uiSchema} onClearAll={handleClearAll} />
+          </Grid>
 
-        <Grid size={{ xs: 12, md: 3 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
-          <FieldEditor
-            selectedField={selected !== null ? fields[selected] : null}
-            activeTab={activeTab}
-            jsonSchema={schema}
-            uiSchema={uiSchema}
-            onUpdateField={(patch) => selected !== null && updateFieldAt(selected, patch)}
-            onTabChange={setActiveTab}
-            onCopySchema={handleCopySchema}
-            onSaveSchema={handleSaveSchema}
-          />
+          <Grid size={{ xs: 12, md: 3 }} sx={{ display: "flex", flexDirection: "column", minHeight: 0, height: "100%" }}>
+            <FieldEditor
+              selectedField={selected !== null ? fields[selected] : null}
+              activeTab={activeTab}
+              jsonSchema={schema}
+              uiSchema={uiSchema}
+              onUpdateField={(patch) => selected !== null && updateFieldAt(selected, patch)}
+              onTabChange={setActiveTab}
+              onCopySchema={handleCopySchema}
+              onSaveSchema={handleSaveSchema}
+            />
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </Box>
   );
 }
