@@ -1,4 +1,4 @@
-import { Button, alpha } from "@mui/material";
+import { Button, alpha, useMediaQuery, useTheme } from "@mui/material";
 
 interface FieldTypeButtonProps {
   icon: string;
@@ -19,8 +19,24 @@ const FieldTypeButtonStyles = {
 };
 
 export default function FieldTypeButton({ icon, label, onClick }: FieldTypeButtonProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const mobileStyles = {
+    ...FieldTypeButtonStyles,
+    minHeight: 44,
+    fontSize: '0.875rem',
+    px: 1,
+    py: 1.5,
+  };
+
   return (
-    <Button variant="outlined" onClick={onClick} sx={FieldTypeButtonStyles}>
+    <Button 
+      variant="outlined" 
+      onClick={onClick} 
+      sx={isMobile ? mobileStyles : FieldTypeButtonStyles}
+      fullWidth
+    >
       {icon} {label}
     </Button>
   );
