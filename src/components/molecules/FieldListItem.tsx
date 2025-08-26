@@ -1,4 +1,4 @@
-import { ListItem, ListItemText, Typography, alpha } from "@mui/material";
+import { ListItem, ListItemText, Typography, alpha, useMediaQuery, useTheme } from "@mui/material";
 import FieldChip from "../atoms/FieldChip";
 import FieldControls from "./FieldControls";
 import type { Field } from "../../types/field";
@@ -14,9 +14,10 @@ interface FieldListItemProps {
   onRemove: (index: number) => void;
 }
 
-const ListItemStyles = (isSelected: boolean) => ({
+const ListItemStyles = (isSelected: boolean, isMobile: boolean) => ({
   borderRadius: 2,
   mb: 0.5,
+  minHeight: isMobile ? 56 : 'auto',
   bgcolor: isSelected ? alpha("#1976d2", 0.08) : "transparent",
   border: isSelected ? "1px solid" : "1px solid transparent",
   borderColor: isSelected ? alpha("#1976d2", 0.3) : "transparent",
@@ -38,9 +39,12 @@ export default function FieldListItem({
   onMoveDown,
   onRemove,
 }: FieldListItemProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <ListItem
-      sx={ListItemStyles(isSelected)}
+      sx={ListItemStyles(isSelected, isMobile)}
       secondaryAction={
         <FieldControls
           index={index}
