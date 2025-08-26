@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Stack, useMediaQuery, useTheme, Grid } from "@mui/material";
 import FieldTypeButton from "../atoms/FieldTypeButton";
 import type { FieldType } from "../../types/field";
 
@@ -15,11 +15,26 @@ const FieldTypes = [
 ];
 
 export default function AddFieldsPanel({ onAddField }: AddFieldsPanelProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
-    <Stack spacing={1.5}>
-      {FieldTypes.map(({ type, icon, label }) => (
-        <FieldTypeButton key={type} icon={icon} label={label} onClick={() => onAddField(type)} />
-      ))}
-    </Stack>
+    <>
+      {isMobile ? (
+        <Grid container spacing={1}>
+          {FieldTypes.map(({ type, icon, label }) => (
+            <Grid key={type} size={6}>
+              <FieldTypeButton icon={icon} label={label} onClick={() => onAddField(type)} />
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Stack spacing={1.5}>
+          {FieldTypes.map(({ type, icon, label }) => (
+            <FieldTypeButton key={type} icon={icon} label={label} onClick={() => onAddField(type)} />
+          ))}
+        </Stack>
+      )}
+    </>
   );
 }

@@ -64,19 +64,19 @@ export default function FieldSettingsForm({ field, onUpdate }: FieldSettingsForm
       />
 
       <Stack direction="row" spacing={2} alignItems="center">
-        <Select value={field?.type || "string"} onChange={handleSelectChange} size="small" sx={{ minWidth: 120 }}>
+        <Select value={field?.type || "string"} onChange={handleSelectChange} size="small" sx={{ width: '100%' }}>
           <MenuItem value="string">📝 Text</MenuItem>
           <MenuItem value="number">🔢 Number</MenuItem>
           <MenuItem value="boolean">☑️ Boolean</MenuItem>
           <MenuItem value="select">📋 Select</MenuItem>
           <MenuItem value="textarea">📄 Textarea</MenuItem>
         </Select>
-
-        <FormControlLabel
-          control={<Checkbox checked={!!field?.required} onChange={(e) => onUpdate({ required: e.target.checked })} />}
-          label="Required"
-        />
       </Stack>
+
+      <FormControlLabel
+        control={<Checkbox checked={!!field?.required} onChange={(e) => onUpdate({ required: e.target.checked })} />}
+        label="Required"
+      />
 
       {/* Widget selector */}
       {(field?.type === "boolean" || field?.type === "select") && (

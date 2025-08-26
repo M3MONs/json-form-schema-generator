@@ -1,4 +1,5 @@
 import { Card, CardContent, Typography, Box, Divider, Tabs, Tab } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
 import FieldSettingsForm from "../molecules/FieldSettingsForm";
 import SchemaOutput from "../molecules/SchemaOutput";
 import type { Field } from "../../types/field";
@@ -52,6 +53,37 @@ const TabsStyles = {
   },
 };
 
+const ArrowStyles = {
+  position: "absolute",
+  bottom: 0,
+  left: "50%",
+  transform: "translateX(-50%)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 32,
+  height: 20,
+  backgroundColor: "background.paper",
+  borderRadius: "12px 12px 0 0",
+  boxShadow: "0 -2px 8px rgba(0,0,0,0.15)",
+  border: "1px solid",
+  borderColor: "divider",
+  borderBottom: "none",
+  zIndex: 10,
+  animation: "bounce 2s infinite",
+  "@keyframes bounce": {
+    "0%, 20%, 50%, 80%, 100%": {
+      transform: "translateX(-50%) translateY(0)",
+    },
+    "40%": {
+      transform: "translateX(-50%) translateY(-3px)",
+    },
+    "60%": {
+      transform: "translateX(-50%) translateY(-2px)",
+    },
+  },
+};
+
 export default function FieldEditor({
   selectedField,
   activeTab,
@@ -62,16 +94,66 @@ export default function FieldEditor({
   onCopySchema,
   onSaveSchema,
 }: FieldEditorProps) {
+  const [hasMoreContent, setHasMoreContent] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (scrollContainerRef.current) {
+        const element = scrollContainerRef.current;
+        const isScrollable = element.scrollHeight > element.clientHeight;
+        const scrollTop = element.scrollTop;
+        const scrollHeight = element.scrollHeight;
+        const clientHeight = element.clientHeight;
+
+        // Show arrow if there's scrollable content and user is not at the very bottom
+        const isNotAtBottom = scrollTop < scrollHeight - clientHeight - 10;
+        setHasMoreContent(isScrollable && isNotAtBottom);
+      }
+    };
+
+    checkScrollable();
+
+    const timeoutId1 = setTimeout(checkScrollable, 100);
+    const timeoutId2 = setTimeout(checkScrollable, 300);
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", checkScrollable);
+      window.addEventListener("resize", checkScrollable);
+      return () => {
+        clearTimeout(timeoutId1);
+        clearTimeout(timeoutId2);
+        scrollContainer.removeEventListener("scroll", checkScrollable);
+        window.removeEventListener("resize", checkScrollable);
+      };
+    }
+
+    return () => {
+      clearTimeout(timeoutId1);
+      clearTimeout(timeoutId2);
+    };
+  }, [selectedField]);
+
   return (
     <Card sx={CardStyles}>
-      <Box sx={{ height: "50%", display: "flex", flexDirection: "column", overflow: "hidden", flex: "0 0 50%" }}>
+      <Box
+        sx={{
+          height: "50%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          flex: "0 0 50%",
+          position: "relative",
+        }}
+      >
         <CardContent sx={{ p: 3, pb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary" }}>
             ⚙️ Field Settings
           </Typography>
         </CardContent>
 
-        <Box sx={FieldSettingsFormStyles}>
+        <Box sx={FieldSettingsFormStyles} ref={scrollContainerRef}>
           {selectedField === null ? (
             <Box sx={SelectFieldStyles}>
               <Typography variant="h4" sx={{ mb: 1, opacity: 0.5 }}>
@@ -88,6 +170,14 @@ export default function FieldEditor({
             <FieldSettingsForm field={selectedField} onUpdate={onUpdateField} />
           )}
         </Box>
+
+        {hasMoreContent && (
+          <Box sx={ArrowStyles}>
+            <Typography variant="caption" sx={{ fontSize: "14px", lineHeight: 1 }}>
+              ⬇️
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       <Divider />
