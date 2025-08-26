@@ -1,4 +1,4 @@
-import { Box, Stack, Typography, alpha } from "@mui/material";
+import { Box, Stack, Typography, alpha, useMediaQuery, useTheme } from "@mui/material";
 
 interface HeaderProps {
   title: string;
@@ -71,19 +71,38 @@ const SubtitleStyles = {
 };
 
 export default function Header({ title, subtitle, iconPath }: HeaderProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <Box sx={HeaderBoxStyles}>
       <Box sx={TopCircleStyles} />
       <Box sx={BottomCircleStyles} />
-      <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={StackStyles}>
+      <Stack 
+        direction={isMobile ? "column" : "row"} 
+        spacing={2} 
+        alignItems="center" 
+        justifyContent="center" 
+        sx={StackStyles}
+      >
         <Box sx={IconBoxStyles}>
           <img src={iconPath} alt="JSON icon" style={IconStyles} />
         </Box>
-        <Box>
-          <Typography variant="h4" component="h1" sx={TitleStyles}>
+        <Box sx={{ textAlign: isMobile ? 'center' : 'left' }}>
+          <Typography 
+            variant={isMobile ? "h5" : "h4"} 
+            component="h1" 
+            sx={TitleStyles}
+          >
             {title}
           </Typography>
-          <Typography variant="subtitle1" sx={SubtitleStyles}>
+          <Typography 
+            variant={isMobile ? "body2" : "subtitle1"} 
+            sx={{
+              ...SubtitleStyles,
+              fontSize: isMobile ? '0.875rem' : undefined,
+            }}
+          >
             {subtitle}
           </Typography>
         </Box>
