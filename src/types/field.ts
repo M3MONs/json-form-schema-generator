@@ -19,4 +19,8 @@ export interface Field {
   rows?: number;
   inline?: boolean;
   disabled?: boolean;
+  
+  // Layout properties
+  width?: number;
+  layoutField?: string;
 }
