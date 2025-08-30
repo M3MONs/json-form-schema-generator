@@ -1,6 +1,7 @@
 import { Card, CardContent, Stack, Typography, Chip, Box, Paper, Button, alpha } from "@mui/material";
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
+import { customFields } from "../fields";
 
 interface FormPreviewProps {
   fieldsCount: number;
@@ -108,6 +109,7 @@ export default function FormPreview({ fieldsCount, schema, uiSchema, onClearAll 
                 schema={schema}
                 uiSchema={uiSchema}
                 validator={validator}
+                fields={customFields}
                 onSubmit={({ formData }) => {
                   alert(JSON.stringify(formData, null, 2));
                 }}
