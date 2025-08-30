@@ -71,6 +71,8 @@ export default function HomePage(): JSX.Element {
     const schema: any = { type: "object", properties: {}, required: [] as string[] };
     const uiSchema: any = {};
 
+    const hasCustomWidth = fields.some(f => f.width && f.width < 100);
+
     fields.forEach((f) => {
       let prop: any = {};
       let uiConfig: any = {};
@@ -137,6 +139,76 @@ export default function HomePage(): JSX.Element {
       }
       if (f.required) schema.required.push(f.name);
     });
+
+    // If any field has custom width, create LayoutGridField structure
+    if (hasCustomWidth) {
+      const rootUiSchema: any = {
+        "ui:field": "LayoutGridField",
+        "ui:layoutGrid": {
+          "ui:row": []
+        }
+      };
+
+      let currentRow: any = {
+        "ui:row": {
+          "className": "row",
+          "children": []
+        }
+      };
+      let currentRowWidth = 0;
+
+      fields.forEach((f) => {
+        const fieldWidth = f.width || 100;
+        const gridCols = Math.round((fieldWidth / 100) * 12); // Convert percentage to 12-column grid
+        
+        // If this field would exceed 12 columns or field is 100% width, start a new row
+        if ((currentRowWidth + gridCols > 12 && currentRow["ui:row"].children.length > 0) || 
+            (fieldWidth === 100 && currentRow["ui:row"].children.length > 0)) {
+          rootUiSchema["ui:layoutGrid"]["ui:row"].push(currentRow);
+          currentRow = {
+            "ui:row": {
+              "className": "row",
+              "children": []
+            }
+          };
+          currentRowWidth = 0;
+        }
+
+        // Add field to current row
+        currentRow["ui:row"].children.push({
+          "ui:col": {
+            "className": `col-xs-${gridCols}`,
+            "children": [f.name]
+          }
+        });
+        
+        // If field is 100% width, close the row immediately
+        if (fieldWidth === 100) {
+          rootUiSchema["ui:layoutGrid"]["ui:row"].push(currentRow);
+          currentRow = {
+            "ui:row": {
+              "className": "row", 
+              "children": []
+            }
+          };
+          currentRowWidth = 0;
+        } else {
+          currentRowWidth += gridCols;
+        }
+      });
+
+      // Add the last row if it has children
+      if (currentRow["ui:row"].children.length > 0) {
+        rootUiSchema["ui:layoutGrid"]["ui:row"].push(currentRow);
+      }
+
+      Object.keys(uiSchema).forEach(key => {
+        rootUiSchema[key] = uiSchema[key];
+      });
+
+      if (schema.required.length === 0) delete schema.required;
+      return { schema, uiSchema: rootUiSchema };
+    }
 
     if (schema.required.length === 0) delete schema.required;
     return { schema, uiSchema };
