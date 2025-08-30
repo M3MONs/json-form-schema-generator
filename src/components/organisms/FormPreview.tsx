@@ -1,4 +1,5 @@
 import { Card, CardContent, Stack, Typography, Chip, Box, Paper, Button, alpha } from "@mui/material";
+import { useState, useEffect } from "react";
 import Form from "@rjsf/mui";
 import validator from "@rjsf/validator-ajv8";
 import { customFields } from "../fields";
@@ -51,6 +52,14 @@ const ButtonStyles = {
 };
 
 export default function FormPreview({ fieldsCount, schema, uiSchema, onClearAll }: FormPreviewProps) {
+  const [formData, setFormData] = useState<any>({});
+
+  useEffect(() => {
+    if (fieldsCount === 0) {
+      setFormData({});
+    }
+  }, [fieldsCount]);
+
   const handleTestForm = () => {
     const form = document.querySelector("form");
     if (form) {
@@ -105,9 +114,11 @@ export default function FormPreview({ fieldsCount, schema, uiSchema, onClearAll 
           <Box sx={{ flex: 1, overflow: "auto", px: 3, pb: 2 }}>
             <Paper sx={FormStyles}>
               <Form
-                key={JSON.stringify(schema)}
                 schema={schema}
                 uiSchema={uiSchema}
+                formData={formData}
+                formContext={{ formData }}
+                onChange={({ formData: newFormData }) => setFormData(newFormData)}
                 validator={validator}
                 fields={customFields}
                 onSubmit={({ formData }) => {
