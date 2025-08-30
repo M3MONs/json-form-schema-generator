@@ -78,6 +78,20 @@ export default function FieldSettingsForm({ field, onUpdate }: FieldSettingsForm
         label="Required"
       />
 
+      <TextField
+        label="Width (%)"
+        type="number"
+        value={field?.width ?? 100}
+        onChange={(e) => {
+          const width = Number(e.target.value);
+          onUpdate({ width: width === 100 ? undefined : width });
+        }}
+        size="small"
+        inputProps={{ min: 1, max: 100 }}
+        helperText="Field width percentage (1-100). Use less than 100% to enable grid layout."
+        fullWidth
+      />
+
       {/* Widget selector */}
       {(field?.type === "boolean" || field?.type === "select") && (
         <Stack direction="row" spacing={2} alignItems="center">
