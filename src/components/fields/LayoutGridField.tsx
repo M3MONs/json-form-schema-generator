@@ -96,6 +96,8 @@ const LayoutGridField: React.FC<FieldProps> = (props) => {
   const options = getUiOptions(uiSchema);
   const layoutGrid = options.layoutGrid;
   
+  const fullFormData = registry?.formContext?.formData || formData || {};
+  
   if (!layoutGrid || !layoutGrid['ui:row']) {
     return <div>No layout configuration found</div>;
   }
@@ -106,7 +108,7 @@ const LayoutGridField: React.FC<FieldProps> = (props) => {
     <Box sx={{ '& > *:last-child': { mb: '0 !important' } }}>
       {rows.map((row, index) => {
         if (row['ui:row']) {
-          return renderRow(row['ui:row'], registry, formData, onChange, errorSchema, schema, uiSchema, index);
+          return renderRow(row['ui:row'], registry, fullFormData, onChange, errorSchema, schema, uiSchema, index);
         }
         return null;
       })}
