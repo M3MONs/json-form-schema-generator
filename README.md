@@ -16,6 +16,7 @@ A modern, visual tool for creating JSON Schema and UI Schema configurations for 
 - **Field Validation**: Built-in validation with configurable rules
 - **Field Reordering**: Move fields up and down to organize form structure
 - **Schema Management**: Copy to clipboard or download as JSON files
+- **Grid Layout Customization**: Arrange fields in a responsive grid, with options to define fields width.
 
 ## 🚀 Quick Start
 
