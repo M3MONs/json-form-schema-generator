@@ -60,6 +60,10 @@ export default function FormPreview({ fieldsCount, schema, uiSchema, onClearAll 
     }
   }, [fieldsCount]);
 
+  useEffect(() => {
+    setFormData({});
+  }, [schema]);
+
   const handleTestForm = () => {
     const form = document.querySelector("form");
     if (form) {
@@ -114,6 +118,7 @@ export default function FormPreview({ fieldsCount, schema, uiSchema, onClearAll 
           <Box sx={{ flex: 1, overflow: "auto", px: 3, pb: 2 }}>
             <Paper sx={FormStyles}>
               <Form
+                key={JSON.stringify(Object.keys(schema.properties || {}))}
                 schema={schema}
                 uiSchema={uiSchema}
                 formData={formData}
